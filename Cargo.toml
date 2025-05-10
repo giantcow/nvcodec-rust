@@ -1,3 +1,10 @@
 [workspace]
 workspace.resolver = "3"
 members = ["nvenc*", "nvdec*"]
+
+[workspace.package]
+description = "Rust bindings for Nvidia's hardware encoder/decoder"
+authors = ["Kayo <kayo@giantcow.dev>"]
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/giantcow/nvcodec-rust"
