@@ -7,4 +7,5 @@ license.workspace = true
 repository.workspace = true
 description.workspace = true
 
-[dependencies]
+[build-dependencies]
+bindgen = "0.72.0"

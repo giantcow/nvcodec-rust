@@ -8,3 +8,4 @@ repository.workspace = true
 description.workspace = true
 
 [dependencies]
+nvenc-sys = { path = "../nvenc-sys/" }
