@@ -9,3 +9,4 @@ description.workspace = true
 
 [dependencies]
 nvenc-sys = { path = "../nvenc-sys/" }
+cust = "0.3.2"
