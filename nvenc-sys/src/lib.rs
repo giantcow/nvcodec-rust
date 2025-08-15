@@ -16,6 +16,7 @@ pub mod ffi {
     pub const NV_ENCODE_API_FUNCTION_LIST_VER: u32 = NVENCAPI_STRUCT_VERSION(2);
     pub const NV_ENC_OPEN_ENCODE_SESSION_EX_PARAMS_VER: u32 = NVENCAPI_STRUCT_VERSION(1);
     pub const NV_ENC_INITIALIZE_PARAMS_VER: u32 = NVENCAPI_STRUCT_VERSION(7) | (1 << 31);
+    pub const NV_ENC_RC_PARAMS_VER: u32 = NVENCAPI_STRUCT_VERSION(1);
 
     // =========================================================================================
     // Encode Codec GUIDS supported by the NvEncodeAPI interface.

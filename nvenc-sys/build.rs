@@ -1,13 +1,10 @@
 use std::path::PathBuf;
 
 fn main() {
-    println!("cargo:rustc-link-search=/usr/local/cuda-11.8/"); // Older location
-
     // Newer versions of the cuda-toolkit installer use these locations. Note that they may be
     // symlinks
     println!("cargo:rustc-link-search=/usr/lib64/");
     println!("cargo:rustc-link-search=/usr/local/cuda/");
-    println!("cargo:rustc-link-search=/home/cayman/workspace/video-codec-sdk/Video_Codec_SDK_13.0.19/Lib/");
 
     println!("cargo:rustc-link-lib=nvidia-encode");
 

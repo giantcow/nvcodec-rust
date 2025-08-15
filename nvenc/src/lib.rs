@@ -2,6 +2,8 @@ use std::fmt::{Debug, Display};
 
 use nvenc_sys::ffi;
 
+use crate::nv_enc_rate_control::NvEncRateControlParams;
+
 pub mod nvenc_api;
 pub mod nvenc_session;
 
@@ -184,6 +186,26 @@ impl Default for NvEncConfig {
 }
 
 impl NvEncConfig {
+    pub fn set_profile_guid(&mut self, profile_guid: ffi::GUID) -> &mut Self {
+        self.0.profileGUID = profile_guid;
+        self
+    }
+
+    pub fn set_gop_length(&mut self, gop_length: u32) -> &mut Self {
+        self.0.gopLength = gop_length;
+        self
+    }
+
+    pub fn set_frame_interval_p(&mut self, frame_interval_p: u32) -> &mut Self {
+        self.0.frameIntervalP = frame_interval_p as i32; // ..why NVENC, why...
+        self
+    }
+
+    pub fn set_rc_params(&mut self, rc_params: NvEncRateControlParams) -> &mut Self {
+        self.0.rcParams = rc_params.0;
+        self
+    }
+
     pub fn set_encode_codec_config(&mut self, enode_codec_config: NvEncCodecConfig) -> &mut Self {
         self.0.encodeCodecConfig = match enode_codec_config {
             NvEncCodecConfig::H264(mut config) => ffi::NV_ENC_CODEC_CONFIG {
@@ -250,7 +272,150 @@ pub mod nv_enc_codec {
 
     use super::*;
 
-    pub struct H264(pub(super) ffi::NV_ENC_CONFIG_H264);
+    pub struct H264(pub ffi::NV_ENC_CONFIG_H264);
+    impl H264 {
+        pub fn set_level(&mut self, level: u32) -> &mut Self {
+            self.0.level = level;
+            self
+        }
+        pub fn set_idr_period(&mut self, idr_period: u32) -> &mut Self {
+            self.0.idrPeriod = idr_period;
+            self
+        }
+        pub fn set_separate_colour_plane_flag(
+            &mut self,
+            separate_colour_plane_flag: u32,
+        ) -> &mut Self {
+            self.0.separateColourPlaneFlag = separate_colour_plane_flag;
+            self
+        }
+        pub fn set_deblocking_filter_idc(
+            &mut self,
+            disable_deblocking_filter_idc: bool,
+        ) -> &mut Self {
+            if disable_deblocking_filter_idc {
+                self.0.disableDeblockingFilterIDC = 1;
+            } else {
+                self.0.disableDeblockingFilterIDC = 0;
+            }
+            self
+        }
+        pub fn set_num_temporal_layers(&mut self, num_temporal_layers: u32) -> &mut Self {
+            self.0.numTemporalLayers = num_temporal_layers;
+            self
+        }
+        pub fn set_sps_id(&mut self, sps_id: u32) -> &mut Self {
+            self.0.spsId = sps_id;
+            self
+        }
+        pub fn set_pps_id(&mut self, pps_id: u32) -> &mut Self {
+            self.0.ppsId = pps_id;
+            self
+        }
+        // TODO: Use Enum
+        pub fn set_adaptive_transform_mode(&mut self, adaptive_transform_mode: u32) -> &mut Self {
+            self.0.adaptiveTransformMode = adaptive_transform_mode;
+            self
+        }
+        // TODO: Use Enum
+        pub fn set_fmo_mode(&mut self, fmo_mode: u32) -> &mut Self {
+            self.0.fmoMode = fmo_mode;
+            self
+        }
+        // TODO: Use Enum
+        pub fn set_bdirect_mode(&mut self, bdirect_mode: u32) -> &mut Self {
+            self.0.bdirectMode = bdirect_mode;
+            self
+        }
+        // TODO: Use enum
+        pub fn set_entropy_coding_mode(&mut self, entropy_coding_mode: u32) -> &mut Self {
+            self.0.entropyCodingMode = entropy_coding_mode;
+            self
+        }
+        // TODO: Use enum
+        pub fn set_stereo_mode(&mut self, stereo_mode: u32) -> &mut Self {
+            self.0.stereoMode = stereo_mode;
+            self
+        }
+        pub fn set_intra_refresh_period(&mut self, intra_refresh_period: u32) -> &mut Self {
+            self.0.intraRefreshPeriod = intra_refresh_period;
+            self
+        }
+        pub fn set_intra_refresh_cnt(&mut self, intra_refresh_cnt: u32) -> &mut Self {
+            self.0.intraRefreshCnt = intra_refresh_cnt;
+            self
+        }
+        pub fn set_max_num_ref_frames(&mut self, max_num_ref_frames: u32) -> &mut Self {
+            self.0.maxNumRefFrames = max_num_ref_frames;
+            self
+        }
+        // TODO: Use enum
+        pub fn set_slice_mode(&mut self, slice_mode: u32) -> &mut Self {
+            self.0.sliceMode = slice_mode;
+            self
+        }
+        pub fn set_slice_mode_data(&mut self, slice_mode_data: u32) -> &mut Self {
+            self.0.sliceModeData = slice_mode_data;
+            self
+        }
+        // TODO: Use NV_ENC_CONFIG_H264_VUI_PARAMETERS
+        pub fn set_h264_vui_parameters(&mut self, _h264_vui_parameters: u32) -> &mut Self {
+            // self.0.h264VUIParameters = h264_vui_parameters;
+            self
+        }
+        pub fn set_ltr_num_frames(&mut self, ltr_num_frames: u32) -> &mut Self {
+            self.0.ltrNumFrames = ltr_num_frames;
+            self
+        }
+        // TODO: Use enum
+        pub fn set_ltr_trust_mode(&mut self, ltr_trust_mode: u32) -> &mut Self {
+            self.0.ltrTrustMode = ltr_trust_mode;
+            self
+        }
+        // TODO: Use enum
+        /// REQUIRED
+        pub fn set_chroma_format_idc(&mut self, chroma_format_idc: u32) -> &mut Self {
+            self.0.chromaFormatIDC = chroma_format_idc;
+            self
+        }
+        pub fn set_max_temporal_layers(&mut self, max_temporal_layers: u32) -> &mut Self {
+            self.0.maxTemporalLayers = max_temporal_layers;
+            self
+        }
+        pub fn set_use_bframes_as_ref(&mut self, use_bframes_as_ref: bool) -> &mut Self {
+            if use_bframes_as_ref {
+                self.0.useBFramesAsRef = 1;
+            } else {
+                self.0.useBFramesAsRef = 0;
+            }
+            self
+        }
+        // TODO: Use enum
+        pub fn set_num_ref_l0(&mut self, num_ref_l0: u32) -> &mut Self {
+            self.0.numRefL0 = num_ref_l0;
+            self
+        }
+        // TODO: Use enum
+        pub fn set_num_ref_l1(&mut self, num_ref_l1: u32) -> &mut Self {
+            self.0.numRefL1 = num_ref_l1;
+            self
+        }
+        // TODO: Use enum
+        pub fn set_output_bit_depth(&mut self, output_bit_depth: u32) -> &mut Self {
+            self.0.outputBitDepth = output_bit_depth;
+            self
+        }
+        // TODO: Use enum
+        pub fn set_input_bit_depth(&mut self, input_bit_depth: u32) -> &mut Self {
+            self.0.inputBitDepth = input_bit_depth;
+            self
+        }
+        // TODO: Use enum
+        pub fn set_tf_level(&mut self, tf_level: u32) -> &mut Self {
+            self.0.tfLevel = tf_level;
+            self
+        }
+    }
     impl BaseNvCodec for H264 {}
     impl Debug for H264 {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -394,8 +559,74 @@ pub mod nv_enc_codec {
     }
 
     pub trait BaseNvCodec: Sized {
+        // These setting structures have no version field so this is easy
         fn new() -> Self {
             unsafe { std::mem::zeroed::<Self>() }
+        }
+    }
+}
+
+pub mod nv_enc_rate_control {
+    use super::*;
+
+    pub struct NvEncRateControlParams(pub(crate) ffi::NV_ENC_RC_PARAMS);
+
+    impl Default for NvEncRateControlParams {
+        fn default() -> Self {
+            let mut rc_params = unsafe { std::mem::zeroed::<ffi::NV_ENC_RC_PARAMS>() };
+            rc_params.version = ffi::NV_ENC_RC_PARAMS_VER;
+            Self(rc_params)
+        }
+    }
+
+    impl NvEncRateControlParams {
+        pub fn set_max_bit_rate(&mut self, max_bit_rate: u32) -> &mut Self {
+            self.0.maxBitRate = max_bit_rate;
+            self
+        }
+
+        pub fn set_average_bit_rate(&mut self, average_bit_rate: u32) -> &mut Self {
+            self.0.averageBitRate = average_bit_rate;
+            self
+        }
+
+        // TODO: Use enum
+        pub fn set_rate_control_mode(&mut self, rate_control_mode: u32) -> &mut Self {
+            self.0.rateControlMode = rate_control_mode;
+            self
+        }
+
+        pub fn set_vbv_buffer_size(&mut self, vbv_buffer_size: u32) -> &mut Self {
+            self.0.vbvBufferSize = vbv_buffer_size;
+            self
+        }
+
+        pub fn set_vbv_initial_delay(&mut self, vbv_initial_delay: u32) -> &mut Self {
+            self.0.vbvInitialDelay = vbv_initial_delay;
+            self
+        }
+
+        pub fn set_enable_aq(&mut self, enable_aq: bool) -> &mut Self {
+            if enable_aq {
+                self.0.set_enableAQ(1);
+            } else {
+                self.0.set_enableAQ(0);
+            }
+            self
+        }
+
+        pub fn set_strict_gop_target(&mut self, strict_gop_target: bool) -> &mut Self {
+            if strict_gop_target {
+                self.0.set_strictGOPTarget(1);
+            } else {
+                self.0.set_strictGOPTarget(0);
+            }
+            self
+        }
+
+        pub fn set_aq_strength(&mut self, aq_strength: u32) -> &mut Self {
+            self.0.set_aqStrength(aq_strength);
+            self
         }
     }
 }

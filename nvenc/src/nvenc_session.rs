@@ -56,6 +56,7 @@ impl NvEncSessionBuilder {
 mod test {
     use crate::{
         nv_enc_codec::{self, BaseNvCodec},
+        nv_enc_rate_control::NvEncRateControlParams,
         nvenc_api::NvEncApiBuilder,
         NvEncCodecConfig, NvEncConfig,
     };
@@ -79,28 +80,25 @@ mod test {
     }
 
     #[test]
-    fn builds() {
+    fn builds_session_minimal_h264() {
         let mut init_params = NvEncInitializeParams::default();
         init_params.set_encode_resolution(1920, 1080);
-        init_params.set_encode_resolution_max(1920, 1080);
-        init_params.set_dar_resolution(1920, 1080);
-        init_params.set_framerate(3000, 1000);
-        init_params.set_ptd(true);
         init_params.set_encode_guid(ffi::NV_ENC_CODEC_H264_GUID);
-        init_params.set_preset_guid(ffi::NV_ENC_CODEC_PROFILE_AUTOSELECT_GUID);
-        // init_params.set_preset_guid(ffi::NV_ENC_H264_PROFILE_BASELINE_GUID);
+
+        let mut h264_config = nv_enc_codec::H264::new();
+        h264_config.set_chroma_format_idc(1);
 
         let mut encode_config = NvEncConfig::default();
-        let mut h264_config = nv_enc_codec::H264::new();
         encode_config.set_encode_codec_config(h264_config.into());
+
         init_params.set_encode_config(&mut encode_config);
 
-        eprintln!("{:?}", &init_params);
-
-        let _session =
+        let session =
             NvEncSessionBuilder::new(NvEncApiBuilder::new().build().unwrap(), init_params)
                 .with_cuda(cust::quick_init().unwrap().as_raw() as *mut _ as *mut c_void)
                 .build()
                 .unwrap();
+
+        assert!(session.session != &mut 0x0 as *mut _ as *mut std::ffi::c_void);
     }
 }
