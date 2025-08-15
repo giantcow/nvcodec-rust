@@ -99,6 +99,9 @@ mod test {
                 .build()
                 .unwrap();
 
-        assert!(session.session != &mut 0x0 as *mut _ as *mut std::ffi::c_void);
+        assert!(!std::ptr::eq(
+            session.session,
+            std::ptr::null::<std::ffi::c_void>()
+        ));
     }
 }
