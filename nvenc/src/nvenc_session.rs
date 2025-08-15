@@ -54,7 +54,11 @@ impl NvEncSessionBuilder {
 
 #[cfg(test)]
 mod test {
-    use crate::nvenc_api::NvEncApiBuilder;
+    use crate::{
+        nv_enc_codec::{self, BaseNvCodec},
+        nvenc_api::NvEncApiBuilder,
+        NvEncCodecConfig, NvEncConfig,
+    };
 
     use super::*;
 
@@ -77,8 +81,21 @@ mod test {
     #[test]
     fn builds() {
         let mut init_params = NvEncInitializeParams::default();
+        init_params.set_encode_resolution(1920, 1080);
+        init_params.set_encode_resolution_max(1920, 1080);
+        init_params.set_dar_resolution(1920, 1080);
+        init_params.set_framerate(3000, 1000);
+        init_params.set_ptd(true);
         init_params.set_encode_guid(ffi::NV_ENC_CODEC_H264_GUID);
-        init_params.set_preset_guid(ffi::NV_ENC_PRESET_P1_GUID);
+        init_params.set_preset_guid(ffi::NV_ENC_CODEC_PROFILE_AUTOSELECT_GUID);
+        // init_params.set_preset_guid(ffi::NV_ENC_H264_PROFILE_BASELINE_GUID);
+
+        let mut encode_config = NvEncConfig::default();
+        let mut h264_config = nv_enc_codec::H264::new();
+        encode_config.set_encode_codec_config(h264_config.into());
+        init_params.set_encode_config(&mut encode_config);
+
+        eprintln!("{:?}", &init_params);
 
         let _session =
             NvEncSessionBuilder::new(NvEncApiBuilder::new().build().unwrap(), init_params)

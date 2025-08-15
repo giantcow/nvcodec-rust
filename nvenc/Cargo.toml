@@ -7,6 +7,9 @@ license.workspace = true
 repository.workspace = true
 description.workspace = true
 
+[features]
+disable-assume-max-encode-width = []
+
 [dependencies]
 nvenc-sys = { path = "../nvenc-sys/" }
 cust = "0.3.2"
