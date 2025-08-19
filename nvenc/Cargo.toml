@@ -8,6 +8,7 @@ repository.workspace = true
 description.workspace = true
 
 [features]
+nightly = []
 disable-assume-max-encode-width = []
 
 [dependencies]

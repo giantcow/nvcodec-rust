@@ -4,8 +4,9 @@ use nvenc_sys::ffi;
 
 use crate::nv_enc_rate_control::NvEncRateControlParams;
 
-pub mod nvenc_api;
-pub mod nvenc_session;
+pub mod api;
+pub mod guids;
+pub mod session;
 
 pub type NvEncResult<R> = Result<R, NvEncApiError>;
 
@@ -68,6 +69,11 @@ impl Display for NvEncApiError {
         let (err_name, _) = self.get_details();
         write!(f, "{} ({})", err_name, self.0)
     }
+}
+
+pub enum ChromaFormat {
+    YUV420 = 1,
+    YUV444 = 3,
 }
 
 pub struct NvEncInitializeParams(ffi::_NV_ENC_INITIALIZE_PARAMS);
@@ -136,13 +142,13 @@ impl NvEncInitializeParams {
         self
     }
 
-    pub fn set_encode_guid(&mut self, encode_guid: ffi::GUID) -> &mut Self {
-        self.0.encodeGUID = encode_guid;
+    pub fn set_encode_guid(&mut self, codec_guid: crate::guids::codecs::Codec) -> &mut Self {
+        self.0.encodeGUID = codec_guid.into();
         self
     }
 
-    pub fn set_preset_guid(&mut self, preset_guid: ffi::GUID) -> &mut Self {
-        self.0.presetGUID = preset_guid;
+    pub fn set_preset_guid(&mut self, preset_guid: crate::guids::presets::Preset) -> &mut Self {
+        self.0.presetGUID = preset_guid.into();
         self
     }
 
@@ -186,8 +192,11 @@ impl Default for NvEncConfig {
 }
 
 impl NvEncConfig {
-    pub fn set_profile_guid(&mut self, profile_guid: ffi::GUID) -> &mut Self {
-        self.0.profileGUID = profile_guid;
+    pub fn set_profile_guid(
+        &mut self,
+        profile_guid: impl crate::guids::profiles::ProfileLike,
+    ) -> &mut Self {
+        self.0.profileGUID = profile_guid.as_raw();
         self
     }
 
@@ -373,9 +382,11 @@ pub mod nv_enc_codec {
             self
         }
         // TODO: Use enum
-        /// REQUIRED
-        pub fn set_chroma_format_idc(&mut self, chroma_format_idc: u32) -> &mut Self {
-            self.0.chromaFormatIDC = chroma_format_idc;
+        pub fn set_chroma_format_idc(&mut self, chroma_format: ChromaFormat) -> &mut Self {
+            self.0.chromaFormatIDC = match chroma_format {
+                ChromaFormat::YUV420 => 1,
+                ChromaFormat::YUV444 => 3,
+            };
             self
         }
         pub fn set_max_temporal_layers(&mut self, max_temporal_layers: u32) -> &mut Self {
@@ -416,7 +427,13 @@ pub mod nv_enc_codec {
             self
         }
     }
-    impl BaseNvCodec for H264 {}
+    impl H264 {
+        pub fn new(chroma_format: ChromaFormat) -> Self {
+            let mut myself = unsafe { std::mem::zeroed::<Self>() };
+            myself.set_chroma_format_idc(chroma_format);
+            myself
+        }
+    }
     impl Debug for H264 {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             f.debug_struct("NV_ENC_CONFIG_H264")

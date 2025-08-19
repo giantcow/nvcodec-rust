@@ -18,6 +18,17 @@ pub mod ffi {
     pub const NV_ENC_INITIALIZE_PARAMS_VER: u32 = NVENCAPI_STRUCT_VERSION(7) | (1 << 31);
     pub const NV_ENC_RC_PARAMS_VER: u32 = NVENCAPI_STRUCT_VERSION(1);
 
+    impl PartialEq for self::GUID {
+        fn eq(&self, other: &Self) -> bool {
+            self.Data1 == other.Data1
+                && self.Data2 == other.Data2
+                && self.Data3 == other.Data3
+                && self.Data4 == other.Data4
+        }
+    }
+
+    impl Eq for self::GUID {}
+
     // =========================================================================================
     // Encode Codec GUIDS supported by the NvEncodeAPI interface.
     // =========================================================================================
@@ -226,6 +237,28 @@ pub mod ffi {
 #[cfg(test)]
 mod nv_ffi_tests {
     use super::*;
+
+    mod guid_tests {
+        use super::*;
+
+        #[test]
+        fn h264_guid_matches_itself() {
+            assert_eq!(
+                ffi::GUID {
+                    Data1: 0x6bc82762,
+                    Data2: 0x4e63,
+                    Data3: 0x4ca4,
+                    Data4: [0xaa, 0x85, 0x1e, 0x50, 0xf3, 0x21, 0xf6, 0xbf],
+                },
+                ffi::NV_ENC_CODEC_H264_GUID
+            );
+        }
+
+        #[test]
+        fn h264_guid_does_not_match_hevc_guid() {
+            assert_ne!(ffi::NV_ENC_CODEC_H264_GUID, ffi::NV_ENC_CODEC_HEVC_GUID);
+        }
+    }
 
     #[test]
     fn calls_nv_encode_api_create_instance() {
